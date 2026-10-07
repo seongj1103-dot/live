@@ -1,0 +1,6 @@
+{
+  "name": "실시간 한마디 방명록 (Live Guestbook)",
+  "description": "Firebase Firestore onSnapshot 실시간 리스너 기반의 실시간 톡/방명록 웹 애플리케이션",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

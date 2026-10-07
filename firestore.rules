@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // -------------------------------------------------------------
+    // [참고] 테스트 모드(Test Mode) 규칙:
+    // Firebase 콘솔에서 '테스트 모드로 시작'을 누르면 기본으로 30일간 아래처럼 열려 있습니다:
+    // match /{document=**} {
+    //   allow read, write: if request.time < timestamp.date(2026, 12, 31);
+    // }
+    // -------------------------------------------------------------
+
+    // 데이터 검증 헬퍼 함수
+    function isValidGuestbookMessage(data) {
+      return data.keys().hasAll(['nickname', 'message', 'createdAt']) &&
+             data.keys().hasOnly(['nickname', 'message', 'createdAt', 'avatar', 'bubbleColor', 'likes']) &&
+             data.nickname is string && data.nickname.size() >= 1 && data.nickname.size() <= 50 &&
+             data.message is string && data.message.size() >= 1 && data.message.size() <= 500 &&
+             (data.avatar == null || (data.avatar is string && data.avatar.size() <= 20)) &&
+             (data.bubbleColor == null || (data.bubbleColor is string && data.bubbleColor.size() <= 20)) &&
+             (data.likes == null || data.likes is number);
+    }
+
+    // 방명록(guestbook) 컬렉션 규칙
+    match /guestbook/{messageId} {
+      // 1. 누구나 실시간으로 방명록 메시지 목록 및 단건을 조회할 수 있습니다.
+      allow read: if true;
+
+      // 2. 누구나 새 방명록 메시지를 작성할 수 있습니다 (유효성 검사 통과 시).
+      allow create: if isValidGuestbookMessage(request.resource.data) &&
+                       request.resource.data.createdAt == request.time;
+
+      // 3. 좋아요(likes) 카운트 증가 업데이트 허용
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes']) &&
+                       request.resource.data.likes is number;
+
+      // 삭제는 금지 (관리자 전용 또는 비활성화)
+      allow delete: if false;
+    }
+
+    // 기본적으로 다른 컬렉션은 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

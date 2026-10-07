@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "GuestbookMessage": {
+      "title": "GuestbookMessage",
+      "description": "실시간 방명록 메시지",
+      "type": "object",
+      "properties": {
+        "nickname": {
+          "type": "string",
+          "description": "작성자 닉네임",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "message": {
+          "type": "string",
+          "description": "방명록 내용",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "avatar": {
+          "type": "string",
+          "description": "선택한 이모지 프로필",
+          "maxLength": 20
+        },
+        "bubbleColor": {
+          "type": "string",
+          "description": "말풍선 배경색상 테마",
+          "maxLength": 20
+        },
+        "likes": {
+          "type": "number",
+          "description": "공감/좋아요 수"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "서버 등록 시각"
+        }
+      },
+      "required": ["nickname", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/guestbook/{messageId}": {
+      "schema": "GuestbookMessage",
+      "description": "모든 방문자가 남긴 실시간 방명록 글 목록"
+    }
+  }
+}
